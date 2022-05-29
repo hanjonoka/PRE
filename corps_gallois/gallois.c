@@ -1,10 +1,11 @@
 #include "gallois.h"
 
-void mult_gallois_8(u_int8_t* a, u_int8_t* b, u_int8_t* res) {
-  u_int8_t* c = (u_int8_t*)(6,sizeof(u_int8_t));
+
+void mult_gallois_8(u_int8_t* a, u_int8_t* b, u_int8_t* res) { //jsp si ça marche
+  u_int8_t* c = (u_int8_t*)calloc(6,sizeof(u_int8_t));
   for(int i=0;i<3;i++) {
     for( int j=0;i<3;i++) {
-      c[i+j] = c[i+j] & (a[i] ^ b[j]);
+      c[i+j] = c[i+j] ^ (a[i] & b[j]);
     }
   }
 
@@ -21,7 +22,7 @@ void mult_gallois_8(u_int8_t* a, u_int8_t* b, u_int8_t* res) {
     res[1] = res[1]^1;
     res[2] = res[2]^1;
   }
-  if(c[5]){ //ajoute x^4 mod P
+  if(c[5]){ //ajoute x^5 mod P
     res[0] = res[0]^1;
     res[1] = res[1]^1;
   }
@@ -34,9 +35,50 @@ void add_gallois_8(u_int8_t* a, u_int8_t* b, u_int8_t* res) {
   }
 }
 
-// u_int8_t opp_pol_8(u_int8_t i) {
-//   return (8-i) % 8;
-// }
+void mult_mod(u_int8_t* a, u_int8_t* b, u_int8_t* res, u_int8_t* P, int deg_P) { //pas fini
+  u_int8_t* c = (u_int8_t*) calloc(2*deg_P,sizeof(u_int8_t));
+  for(int i=0;i<deg_P;i++) {
+    for(int j=0;j<deg_P;j++) {
+      c[i+j] = c[i+j] ^ (a[i] & b[j]); 
+    }
+  }
+
+  for(int i=0;i<deg_P;i++) {
+    res[i] = c[i];
+  }
+  for(int i=deg_P;i<2*deg_P;i++) {
+
+  }
+}
+
+void mod_P(u_int8_t* res, u_int8_t* a, int deg_a, u_int8_t* P, int deg_P) {
+  u_int8_t* b = (u_int8_t*) calloc(deg_a+1, sizeof(u_int8_t));
+  for(int i=0;i<deg_a+1;i++) {
+    b[i]=a[i];
+  }
+
+  for(int i=deg_a;i>=deg_P;i--) {
+    for(int j=i-deg_P;j<=i;j++) {
+      u_int8_t m = b[i] & P[j-i+deg_P];
+      b[j] = b[j] ^ m;
+    }
+  }
+
+  for(int i=0;i<deg_P;i++) {
+    res[i] = b[i];
+  }
+  free(b);
+}
+
+void add(u_int8_t* a, u_int8_t* b, u_int8_t* res, int deg) {
+  for(int i=0; i<deg+1; i++) {
+    res[i]=a[i]^b[i];
+  }
+}
+
+u_int8_t puiss_gallois_8(gallois* G, u_int8_t x, int n) {
+  return n==0 ? 1 : G->mult_table[x*8 + puiss_gallois_8(G, x, n-1)];
+}
 
 gallois* generate_gallois_8() {
   u_int8_t elements[8][3] = {{0,0,0}, {1,0,0}, {0,1,0}, {0,0,1}, {1,0,1}, {1,1,1}, {1,1,0}, {0,1,1}};
@@ -57,10 +99,48 @@ gallois* generate_gallois_8() {
       add_gallois_8(G->elements[i],G->elements[j],e);
       G->add_table[i*8 + j] = pol_of_cart_8(G->elements,e);
 
-      G->mult_table[i*8 + j] = (i*j) % 8;
+      G->mult_table[i*8 + j] = i==0 || j==0 ? 0 : ((i+j-2) % 7) + 1;
     }
   }
   free(e);
+  return G;
+}
+
+gallois* generate_gallois(u_int8_t* P, int deg_P) {
+  gallois* G = (gallois*)malloc(sizeof(gallois));
+  G->deg_P = deg_P;
+  int n = 1<<(deg_P); //2^(deg_P+1) elements
+  G->n = n;
+  G->elements = (u_int8_t**)malloc(n * sizeof(u_int8_t*)); //2^(deg+1 elements)
+
+  G->elements[0] = (u_int8_t*) calloc(deg_P, sizeof(u_int8_t));
+  
+  G->elements[1] = (u_int8_t*) calloc(deg_P, sizeof(u_int8_t));
+  G->elements[1][0] = 1;
+
+  u_int8_t* a = (u_int8_t*) calloc(n, sizeof(u_int8_t));
+  for(int i=2; i<n; i++) {
+    G->elements[i] = (u_int8_t*) calloc(deg_P, sizeof(u_int8_t));
+    a[i-2] = 0;
+    a[i-1] = 1;
+    mod_P(G->elements[i], a, i-1, P, deg_P);
+  }
+  free(a);
+
+  G->add_table = (u_int8_t*) calloc(n*n, sizeof(u_int8_t));
+  G->mult_table = (u_int8_t*) calloc(n*n, sizeof(u_int8_t));
+
+  u_int8_t* e = (u_int8_t*)calloc(deg_P,sizeof(u_int8_t));
+  for(int i=0;i<n;i++){
+    for(int j=0;j<n;j++){
+      add(G->elements[i], G->elements[j], e, deg_P-1);
+      G->add_table[i*G->n + j] = pol_of_cart(G, e);
+
+      G->mult_table[i*G->n + j] = i==0 || j==0 ? 0 : ((i+j-2) % (n-1)) + 1;
+    }
+  }
+  free(e);
+
   return G;
 }
 
@@ -72,14 +152,24 @@ u_int8_t* cart_of_pol(u_int8_t** elts, int i){
   return res;
 };
 
-int el_eq(u_int8_t a[3], u_int8_t b[3]){
-  return (a[0]==b[0])&&(a[1]==b[1])&&(a[2]==b[2]) ? 1 : 0;
+int el_eq(u_int8_t* a, u_int8_t* b, int deg){
+  for(int i=0; i<deg+1;i++) {
+    if(a[i]!=b[i]) return 0;
+  }
+  return 1;
 }
 u_int8_t pol_of_cart_8(u_int8_t** elts, u_int8_t* e){
   for(int i=0;i<8;i++){
-    if(el_eq(elts[i],e)) return i;
+    if(el_eq(elts[i], e, 2)) return i;
   }
-  return 9;
+  return -1;
+}
+
+u_int8_t pol_of_cart(gallois* G, u_int8_t* e) {
+  for(int i=0;i<G->n;i++) {
+    if(el_eq(G->elements[i], e, G->deg_P-1)) return i;
+  }
+  return -1;
 }
 
 void print_gallois_8(gallois* G){
@@ -87,7 +177,7 @@ void print_gallois_8(gallois* G){
   for(int i=0;i<8;i++){
     printf("[%d,%d,%d]",G->elements[i][0],G->elements[i][1],G->elements[i][2]);
   }
-  printf("]\n");
+  printf("] nb=%d\n",G->n);
 
   printf("+   N 0 1 2 3 4 5 6\t*   N 0 1 2 3 4 5 6\n");
   for(int i=0; i<8; i++){
@@ -104,11 +194,47 @@ void print_gallois_8(gallois* G){
   printf("\n");
 }
 
+void print_gallois(gallois* G) {
+  printf("[");
+  for(int i=0;i<G->n;i++){
+    printf("[%d",G->elements[i][0]);
+    for(int j=1;j<G->deg_P;j++) {
+      printf(",%d",G->elements[i][j]);
+    }
+    printf("]");
+  }
+  printf("] nb=%d\n",G->n);
 
-// int main(){
-//   u_int8_t tb[8][3] = {{0,0,0}, {1,0,0}, {0,1,0}, {0,0,1}, {1,0,1}, {1,1,1}, {1,1,0}, {0,1,1}};
-//   gallois* G = generate_gallois_8(tb);
-//   print_gallois_8(G);
-//   return 0;
-// }
+  printf(" +    N");
+  for(int i=1;i<G->n;i++) i<=10 ? printf("  %d",i-1) : printf(" %d",i-1);
+  printf("\t *    N");
+  for(int i=1;i<G->n;i++) i<=10 ? printf("  %d",i-1) : printf(" %d",i-1);
+  printf("\n\n");
 
+  for(int i=0; i<G->n; i++){
+    if(i==0) {printf(" N : ");}
+    else if(i<=10) {printf(" %d : ",i-1);}
+    else {printf("%d : ",i-1);}
+
+    for(int j=0; j<G->n;j++){
+      int k = G->add_table[i*G->n+j];
+      if(k==0) {printf(" N ");}
+      else if(k<=10) {printf(" %d ",k-1);}
+      else {printf("%d ",k-1);}
+    }
+
+    printf("\t");
+    if(i==0) {printf(" N : ");}
+    else if(i<=10) {printf(" %d : ",i-1);}
+    else {printf("%d : ",i-1);}
+
+    for(int j=0; j<G->n;j++){
+      int k = G->mult_table[i*G->n+j];
+      if(k==0) {printf(" N ");}
+      else if(k<=10) {printf(" %d ",k-1);}
+      else {printf("%d ",k-1);}
+    }
+    printf("\n");
+  }
+  printf("\n");
+}
