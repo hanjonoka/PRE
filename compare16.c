@@ -32,9 +32,9 @@ int main() {
 
   //init GRS
   u_int8_t V[15] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}; //tableau de formes polaires d'elements de G distincts où sera évalué le polynome.
-  u_int8_t* lambda1 = get_lambda(G,15,0); //coeficients de normalisation.
-  u_int8_t* lambda2 = get_lambda(G,7,1); //coeficients de normalisation.
-  u_int8_t* lambda3 = get_lambda(G,7,2); //coeficients de normalisation.
+  u_int8_t* lambda1 = get_lambda(G,0); //coeficients de normalisation.
+  u_int8_t* lambda2 = get_lambda(G,1); //coeficients de normalisation.
+  u_int8_t* lambda3 = get_lambda(G,2); //coeficients de normalisation.
 
   FILE* wh_sym = fopen("wh_sym16.csv","w");
   fprintf(wh_sym,"sep=,\n");

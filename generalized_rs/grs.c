@@ -33,7 +33,8 @@ void evaluate_grs_old(u_int8_t** msg, u_int8_t V[7], u_int8_t lambda[7], galois*
   free(c_msg);
 }
 
-u_int8_t* get_lambda(galois* G, int len, int i) {
+u_int8_t* get_lambda(galois* G, int i) {
+  int len = G->n-1;
   u_int8_t* lambda = (u_int8_t*)calloc(len,sizeof(u_int8_t));
   for (int k=0;k<len;k++) {
     lambda[k] = puiss_galois(G,2,k*i);
