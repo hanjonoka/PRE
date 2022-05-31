@@ -1,4 +1,4 @@
 CXX = gcc
 
-gallois: gallois.cpp gallois.h main_gallois.cpp
-	$(CXX) gallois.h gallois.cpp main_gallois.cpp -o gallois.exe
+gallois: gallois.c gallois.h main_gallois.c
+	$(CXX) gallois.h gallois.c main_gallois.c -o gallois.exe

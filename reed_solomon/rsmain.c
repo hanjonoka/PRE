@@ -19,7 +19,7 @@ int main(){
 
   printf("----> Reed Solomon\n");
   u_int8_t P[4] =  {1,0,1,1};
-  gallois* G = generate_gallois(P, 3);
+  galois* G = generate_galois(P, 3);
   u_int8_t racines[2] = {2,3};
   u_int8_t* g = get_g(G, racines, 2);
   print_poly(g,2);
@@ -34,7 +34,7 @@ int main(){
 //--------------------------------------------------------------
 printf("----------------------------------------------------\n");
 
-  u_int8_t msg2_h[9][4] = {{0,1,0,1},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0},{1,1,1,0}};
+  u_int8_t msg2_h[9][4] = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,1}};
   u_int8_t** msg2 = (u_int8_t**)calloc(9,sizeof(u_int8_t*));
   for(int i=0;i<9;i++) {
     msg2[i] = (u_int8_t*)calloc(4,sizeof(u_int8_t));
@@ -48,7 +48,7 @@ printf("----------------------------------------------------\n");
   }
   printf("]\n");
   u_int8_t P2[5] = {1,1,0,0,1};
-  gallois* G2 = generate_gallois(P2,4);
+  galois* G2 = generate_galois(P2,4);
   u_int8_t racines2[6] = {2,3,4,5,6,7};
   u_int8_t* g2 = get_g(G2,racines2,6);
   printf("g : "); print_poly(g2,6);

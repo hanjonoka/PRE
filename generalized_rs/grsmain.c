@@ -20,9 +20,9 @@ int main(){
 
 
   u_int8_t P[4] =  {1,0,1,1};
-  gallois* G = generate_gallois(P, 3);
+  galois* G = generate_galois(P, 3);
   u_int8_t V[7] = {1,2,3,4,5,6,7}; //tableau de formes polaires d'elements de G distincts où sera évalué le polynome.
-  u_int8_t lambda[7] = {1,1,1,1,1,1,1}; //coeficients de normalisation.
+  u_int8_t lambda[7] = {2,2,2,2,2,2,2}; //coeficients de normalisation.
   u_int8_t** send_msg = (u_int8_t**)malloc(7*sizeof(u_int8_t*));
   evaluate_grs(msg,5,V,lambda,G,send_msg);
 
@@ -33,7 +33,7 @@ int main(){
   printf("\n");
 
   printf("----> Generalized Reed Solomon 16\n");
-  u_int8_t msg2_h[9][4] = {{0,1,0,1},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,1,0},{1,1,1,0}};
+  u_int8_t msg2_h[9][4] = {{1,0,0,0},{0,1,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
   u_int8_t** msg2 = (u_int8_t**)calloc(9,sizeof(u_int8_t*));
   for(int i=0;i<9;i++) {
     msg2[i] = (u_int8_t*)calloc(4,sizeof(u_int8_t));
@@ -48,7 +48,7 @@ int main(){
   printf("]\n");
 
   u_int8_t P2[5] = {1,1,0,0,1};
-  gallois* G2 = generate_gallois(P2,4);
+  galois* G2 = generate_galois(P2,4);
   u_int8_t V2[15] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}; //tableau de formes polaires d'elements de G distincts où sera évalué le polynome.
   u_int8_t lambda2[15] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}; //coeficients de normalisation.
   u_int8_t** send_msg2 = (u_int8_t**)malloc(15*sizeof(u_int8_t*));
