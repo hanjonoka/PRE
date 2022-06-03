@@ -76,6 +76,11 @@ void add(u_int8_t* a, u_int8_t* b, u_int8_t* res, int deg) {
   }
 }
 
+u_int8_t inverse(u_int8_t x, galois* G) {
+  // printf("%d-(%d-1)%% %d\n",(G->n-1),x,(((G->n-1)-(x-1))%G->n-1)+1);
+  return (((G->n-1)-(x-1))%(G->n-1))+1;
+}
+
 u_int8_t puiss_galois_8(galois* G, u_int8_t x, int n) {
   return n==0 ? 1 : G->mult_table[x*8 + puiss_galois_8(G, x, n-1)];
 }

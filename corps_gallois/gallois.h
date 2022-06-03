@@ -30,5 +30,6 @@ u_int8_t* cart_of_pol(galois* G, int i);
 u_int8_t pol_of_cart(galois* G, u_int8_t* e);
 void print_galois(galois* G);
 u_int8_t puiss_galois(galois* G, u_int8_t x, int n);
+u_int8_t inverse(u_int8_t x, galois* G);
 
 #endif

@@ -12,6 +12,9 @@ compute_1: grs rs $(RGS_H) $(RS_H) compute_1.c
 compare16: grs rs $(RGS_H) $(RS_H) compare16.c
 	$(CXX) $(GAL_HEAD) $(GRS_H) $(RS_H) rs.o grs.o gallois.o compare16.c -o compare16.exe -lm
 
+matrix: grs rs $(RGS_H) $(RS_H) matrix.c
+	$(CXX) $(GAL_HEAD) $(GRS_H) $(RS_H) rs.o grs.o gallois.o matrix.c -o matrix.exe
+
 compare: grs rs $(RGS_H) $(RS_H) compare.c
 	$(CXX) $(GAL_HEAD) $(GRS_H) $(RS_H) rs.o grs.o gallois.o compare.c -o compare.exe -lm
 
@@ -23,3 +26,6 @@ rs: gallois $(RS_C) $(GAL_HEAD)
 
 gallois: $(GAL_SRC)
 	$(CXX) -c $(GAL_SRC) -o gallois.o
+
+clean :
+	rm *.o
