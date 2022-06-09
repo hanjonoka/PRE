@@ -34,6 +34,7 @@ int main() {
   u_int8_t** lambda_tab = (u_int8_t**) calloc(G->n-1,sizeof(u_int8_t*));
   for(int i=0;i<G->n-1;i++) {
     lambda_tab[i] = get_lambda(G,i);
+    print_lambda(lambda_tab[i],7);
   }
 
   FILE* wh_sym = fopen("wh_sym.csv","w");
@@ -50,13 +51,6 @@ int main() {
   for(int i=0;i<G->n-1;i++)  fprintf(wh_bit,",a^(%d)",i);
   fprintf(wh_bit,"\n");
 
-  // u_int16_t* poids_grs1 = (u_int16_t*)calloc(8,sizeof(u_int16_t));
-  // u_int16_t* poids_grs2 = (u_int16_t*)calloc(8,sizeof(u_int16_t));
-  // u_int16_t* poids_grs3 = (u_int16_t*)calloc(8,sizeof(u_int16_t));
-
-  // u_int16_t* poids_bits_grs1 = (u_int16_t*)calloc(7*3+1,sizeof(u_int16_t));
-  // u_int16_t* poids_bits_grs2 = (u_int16_t*)calloc(7*3+1,sizeof(u_int16_t));
-  // u_int16_t* poids_bits_grs3 = (u_int16_t*)calloc(7*3+1,sizeof(u_int16_t));
 
   u_int16_t** poids_rs = (u_int16_t**)calloc(G->n-1,sizeof(u_int16_t*));
   u_int16_t** poids_bits_rs = (u_int16_t**)calloc(G->n-1,sizeof(u_int16_t*));
@@ -92,16 +86,6 @@ int main() {
       poids_grs[i][poids_mot(coded,G->n-1)]++;
       poids_bits_grs[i][poids_bits_mot(coded,G->n-1,G)]++;
     }
-
-    // evaluate_grs_pol(msg,5,V,lambda1,G,coded);
-    // poids_grs1[poids_mot(coded,7)]++;
-    // poids_bits_grs1[poids_bits_mot(coded,7,G)]++;
-    // evaluate_grs_pol(msg,5,V,lambda2,G,coded);
-    // poids_grs2[poids_mot(coded,7)]++;
-    // poids_bits_grs2[poids_bits_mot(coded,7,G)]++;
-    // evaluate_grs_pol(msg,5,V,lambda3,G,coded);
-    // poids_grs3[poids_mot(coded,7)]++;
-    // poids_bits_grs3[poids_bits_mot(coded,7,G)]++;
 
   }
 

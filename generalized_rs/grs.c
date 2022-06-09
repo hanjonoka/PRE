@@ -67,7 +67,7 @@ void evaluate_grs_pol(u_int8_t* msg, int msg_len, u_int8_t* V, u_int8_t* lambda,
 
   for(int i=0; i<encoded_len; i++) {
     for(int j=0; j<msg_len; j++) {
-      u_int8_t x_e_j = puiss_galois_8(G,V[i],j);
+      u_int8_t x_e_j = puiss_galois(G,V[i],j);
       // printf("\tV[i]^j : %d^%d = %d\n",V[i],j,x_e_j);
 
       u_int8_t monome = (G->mult_table[msg[j]*G->n + x_e_j]);
