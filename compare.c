@@ -27,6 +27,7 @@ int main() {
   for(int i=0;i<G->n-1;i++) {
     u_int8_t racines[2] = {i+1,(i+1)%(G->n-1)+1};
     g_tab[i] = get_g(G,racines,2);
+    printf("%d : ",i);print_poly(g_tab[i],2);
   }
 
   //init GRS
@@ -34,7 +35,7 @@ int main() {
   u_int8_t** lambda_tab = (u_int8_t**) calloc(G->n-1,sizeof(u_int8_t*));
   for(int i=0;i<G->n-1;i++) {
     lambda_tab[i] = get_lambda(G,i);
-    print_lambda(lambda_tab[i],7);
+    printf("%d : ",i);print_lambda(lambda_tab[i],7);
   }
 
   FILE* wh_sym = fopen("wh_sym.csv","w");

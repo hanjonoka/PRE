@@ -6,16 +6,19 @@ RS_C = reed_solomon/rs.c
 GRS_H = generalized_rs/grs.h
 GRS_C = generalized_rs/grs.c
 
-compute_1: grs rs $(RGS_H) $(RS_H) compute_1.c
+compute_1: grs rs $(GRS_H) $(RS_H) compute_1.c
 	$(CXX) $(GAL_HEAD) $(GRS_H) $(RS_H) rs.o grs.o gallois.o compute_1.c -o compute_1.exe
 
-compare16: grs rs $(RGS_H) $(RS_H) compare16.c
+compare16: grs rs $(GRS_H) $(RS_H) compare16.c
 	$(CXX) $(GAL_HEAD) $(GRS_H) $(RS_H) rs.o grs.o gallois.o compare16.c -o compare16.exe -lm
 
-matrix: grs rs $(RGS_H) $(RS_H) matrix.c
+compare_poly: rs $(RS_H) compare_poly.c
+	$(CXX) $(GAL_HEAD) $(RS_H) rs.o gallois.o compare_poly.c -o compare_poly.exe
+
+matrix: grs rs $(GRS_H) $(RS_H) matrix.c
 	$(CXX) $(GAL_HEAD) $(GRS_H) $(RS_H) rs.o grs.o gallois.o matrix.c -o matrix.exe
 
-compare: grs rs $(RGS_H) $(RS_H) compare.c
+compare: grs rs $(GRS_H) $(RS_H) compare.c
 	$(CXX) $(GAL_HEAD) $(GRS_H) $(RS_H) rs.o grs.o gallois.o compare.c -o compare.exe -lm
 
 grs: gallois $(GRS_C) $(GAL_HEAD)
