@@ -89,6 +89,9 @@ u_int8_t puiss_galois(galois* G, u_int8_t x, int n) {
   return n==0 ? 1 : G->mult_table[x*G->n + puiss_galois(G, x, n-1)];
 }
 
+u_int8_t mult_n_galois(galois* G, u_int8_t x, int n) {
+  return n==0 ? 0 : G->add_table[x*G->n + mult_n_galois(G,x,n-1)];
+}
 
 galois* generate_galois_8() {
   u_int8_t elements[8][3] = {{0,0,0}, {1,0,0}, {0,1,0}, {0,0,1}, {1,0,1}, {1,1,1}, {1,1,0}, {0,1,1}};
@@ -140,6 +143,15 @@ galois* generate_galois(u_int8_t* P, int deg_P) {
   G->poids = (u_int8_t*) calloc(G->n,sizeof(u_int8_t));
   for(int i=0;i<G->n;i++) {
     for(int j=0;j<G->deg_P;j++) G->poids[i] += G->elements[i][j];
+  }
+
+  G->distances = (u_int8_t*) calloc(G->n*G->n, sizeof(u_int8_t));
+  for(int i=0; i<G->n; i++) {
+    for(int j=0; j<G->n; j++) {
+      for(int k=0; k<G->deg_P; k++){
+        if(G->elements[i][k] != G->elements[j][k]) G->distances[i*G->n + j]++;
+      }
+    }
   }
 
   G->add_table = (u_int8_t*) calloc(n*n, sizeof(u_int8_t));
