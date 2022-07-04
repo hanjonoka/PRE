@@ -20,9 +20,10 @@ u_int8_t Q_of_0_Fq(galois* G, u_int8_t** Q, int degx, int degy, u_int8_t Y) {
   u_int8_t res=0;
   for(int j=0; j<degy; j++) {
     u_int8_t tY = puiss_galois(G,Y,j);
-    u_int8_t r = G->mult_table[Q[0][j]*G->n + r];
+    u_int8_t r = G->mult_table[Q[0][j]*G->n + tY];
     res = G->add_table[r*G->n + res];
   }
+  printf("Y=%d,res=%d;",Y,res);
   return res;
 }
 
@@ -30,6 +31,7 @@ u_int8_t Q_of_0_Fq(galois* G, u_int8_t** Q, int degx, int degy, u_int8_t Y) {
 u_int8_t* find_y_roots(galois* G, u_int8_t** Q, int degx, int degy, int* n_roots) {
   *n_roots = 0;
   u_int8_t* l_roots = calloc(G->n, sizeof(u_int8_t));
+  print_poly_x_0(Q, degx, degy);
   for(int i=0; i<G->n; i++) {
     if(Q_of_0_Fq(G, Q, degx, degy, i) == 0) {
       l_roots[*n_roots]=i;
@@ -84,25 +86,81 @@ u_int8_t** Normalize_and_cov(galois* G, u_int8_t** Q, int degx, int degy, u_int8
   return r_Q;
 }
 
-//Finds all y-roots f0 in Fq[x] of Q of degree less than k
-u_int8_t** Factorize(galois* G, u_int8_t** Q, int degx, int degy, int i, int k, int* n_f) {
-  if(i>=k) {
-    *n_f = 0;
-    return calloc(*n_f, sizeof(u_int8_t*));
+u_int8_t** normalize(galois* G, u_int8_t** Q, int degx, int degy, int* r_degx, int* r_degy) {
+  //normalization
+  //trouver m max tq x^m|Q(x,y)
+  //trouver m max tq pour i<=m et pour tout j Q[i][j]=0
+  int flag = 0;
+  int m=-1;
+  for(int i=0; i<=degx && !flag; i++) {
+    m++;
+    for(int j=0; j<=degy; j++) {
+      if(Q[i][j]!=0) flag=1;
+    }
   }
 
+  //division par x^m
+  *r_degx = degx-m;
+  *r_degy = degy;
+  u_int8_t** r_Q = alloc_poly(*r_degx, *r_degy);
+  for(int i=0; i<=*r_degx; i++) {
+    for(int j=0; j<=*r_degy; j++) {
+      r_Q[i][j] = Q[i+m][j];
+    }
+  }
+
+  return r_Q;
+
+}
+
+//Finds all y-roots f0 in Fq[x] of Q of degree less than k
+u_int8_t** Factorize(galois* G, u_int8_t** Q, int degx, int degy, int d, int k, int* n_f) {
+
+  //calcul des racines de Q(0,y)
   int n_roots;
   u_int8_t* l_roots = find_y_roots(G, Q, degx, degy, &n_roots);
+  printf("d=%d,n_roots=%d\n",d,n_roots);
+  print_word(l_roots, n_roots);
+
+  if(d>=k-1) { //derniere itération, pas besoin de récursion.
+    u_int8_t** l_f = calloc(n_roots,sizeof(u_int8_t*));
+    for(int i=0; i<n_roots; i++) {
+      l_f[i] = calloc(1,sizeof(u_int8_t));
+      l_f[i][0]=l_roots[i];
+    }
+    free(l_roots);
+    *n_f = n_roots;
+    return l_f;
+  }
+
+  //recursion pour chaque racine
   u_int8_t** l_f = NULL;
   *n_f = 0;
   for(int i=0; i<n_roots; i++) {
+    //calcul de <<Q[x][xy+f0]>>
+    int degx_next, degy_next;
+    u_int8_t** Q_next = Normalize_and_cov(G, Q, degx, degy, l_roots[i], &degx_next, &degy_next);
 
     //calcul liste polynomes commençant par l_roots[i]
     int n_p;
-    u_int8_t** l_p = Factorize(G, , , , i+1, k, &n_p);
-    *n_f = *n_f + n_p;
-    l_f = realloc(*n_f, sizeof(u_int8_t*));
+    u_int8_t** l_p = Factorize(G, Q_next, degx_next, degy_next, d+1, k, &n_p);
 
     //concaténation de l_roots[i] et p pour tout p dans l_p
+    l_f = realloc(l_f, (*n_f + n_p) * sizeof(u_int8_t*));
+    for(int j=0; j<n_p; j++) {
+      l_f[j + *n_f] = calloc(k, sizeof(u_int8_t));
+      l_f[j+*n_f][0] = l_roots[i];
+      for(int l=0; l<k-1; l++) {
+        l_f[j+*n_f][l+1] = l_p[j][l];
+      }
+
+      free(l_p[j]);
+    }
+    *n_f = *n_f + n_p;
+    free(l_p);
+    free_poly(Q_next, degx_next);
   }
+  free(l_roots);
+
+  return l_f;
 }

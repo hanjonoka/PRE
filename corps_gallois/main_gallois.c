@@ -1,6 +1,10 @@
 #include "gallois.h"
 
 int main(){
+  u_int8_t P0[3] =  {1,1,1};
+  galois* G0 = generate_galois(P0, 2);
+  print_galois(G0);
+
   u_int8_t P[4] =  {1,0,1,1};
   galois* G = generate_galois(P, 3);
   print_galois(G);

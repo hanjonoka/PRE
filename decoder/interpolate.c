@@ -1,24 +1,12 @@
 #include "decoder.h"
 #include "../generalized_rs/grs.h"
 
-void print_poly_loc(u_int8_t** Q, int degx, int degy) {
-  printf("Q = ");
-  for(int i=0;i<=degx;i++) {
-    for(int j=0; j<=degy; j++) {
-      if(Q[i][j]!=0) printf(" + %d*x^%d*y^%d", Q[i][j],i,j);
-    }
-  }
-  printf("\n");
-}
 
-u_int8_t*** init_polys(u_int8_t* MM, int degx, int degy) {
+u_int8_t*** init_polys(int degx, int degy) {
 
   u_int8_t*** l_polys = (u_int8_t***) calloc(degy+1,sizeof(u_int8_t**));
   for(int i=0; i<degy+1; i++) {
-    l_polys[i] = (u_int8_t**) calloc(degx+1, sizeof(u_int8_t*)); //degx
-    for(int j=0; j<degx+1; j++) {
-      l_polys[i][j] = (u_int8_t*) calloc(degy+1, sizeof(u_int8_t)); //degy
-    }
+    l_polys[i] = alloc_poly(degx, degy);
     l_polys[i][0][i] = 1;
   }
 
@@ -42,8 +30,8 @@ void free_poly(u_int8_t** Q, int degx) {
 
 int weighted_degree(u_int8_t** Q, int degx, int degy, int k) {
   int wd_max = 0;
-  for(int i=0; i<degx; i++) {
-    for(int j=0; j<degy; j++) {
+  for(int i=0; i<=degx; i++) {
+    for(int j=0; j<=degy; j++) {
       if(Q[i][j]!=0) {
         int wd=1*i + (k-1)*j;
         if(wd>wd_max) wd_max=wd;
@@ -120,10 +108,10 @@ u_int8_t** interpolate(galois* G, u_int8_t* MM, int height, int width, int K) {
   printf("omega=%d, L=%d, c=%d\n",omega,L,c);
 
   u_int8_t* discrepancy = calloc(L,sizeof(u_int8_t));
-  u_int8_t*** l_polys = init_polys(MM, c, L);
-  // for(int k=0; k<=L; k++) {
-  //   print_poly_loc(l_polys[k],c,L);
-  // }
+  u_int8_t*** l_polys = init_polys(c, L);
+  for(int k=0; k<=L; k++) {
+    print_poly(l_polys[k],c,L);
+  }
 
   u_int8_t* V = get_lambda(G,1);
 
@@ -134,17 +122,20 @@ u_int8_t** interpolate(galois* G, u_int8_t* MM, int height, int width, int K) {
       u_int8_t alpha = V[i];
       u_int8_t beta = j;
 
+
       //generation des contraintes en alpha,beta
       int m=MM[i*width + j];
-      // printf("m=%d\n",m);
+      // if(m!=0) printf("alpha=%d,beta=%d,m=%d\n",alpha,beta,m);
       for(int u=0; u<m; u++) {
         for(int v=0; v<m-u; v++) {
+          // printf("\tu=%d,v=%d\n",u,v);
 
           //calcul des divergences en alpha,beta
           int k_et = -1;
           for(int k=0; k<=L; k++) {
             discrepancy[k] = D(G, l_polys[k], c, L, u, v, alpha, beta);
-
+            // printf("\t\tk=%d,discrepancy=%d,",k,discrepancy[k]);
+            // print_poly(l_polys[k],c,L);
             if(discrepancy[k]!=0) {
               if(k_et==-1) {
                 k_et = k;
@@ -171,15 +162,19 @@ u_int8_t** interpolate(galois* G, u_int8_t* MM, int height, int width, int K) {
             //Qk_et=(x-alpha)Q_k_et
             for(int ix=c; ix>0; ix--) {
               for(int iy=L; iy>=0; iy--) {
-                l_polys[k_et][ix][iy]=l_polys[k_et][ix-1][iy];
-                l_polys[k_et][ix][iy] = G->mult_table[alpha*G->n + l_polys[k_et][ix][iy]];
+                // l_polys[k_et][ix][iy] = l_polys[k_et][ix-1][iy]; //Q_k*x
+                // l_polys[k_et][ix][iy] = G->mult_table[alpha*G->n + l_polys[k_et][ix][iy]];
+                l_polys[k_et][ix][iy] = G->add_table[l_polys[k_et][ix-1][iy]*G->n + G->mult_table[alpha*G->n + l_polys[k_et][ix][iy]]];
               }
             }
-            for(int iy=0; iy<=L; iy++) l_polys[k_et][0][iy]=0;
+            for(int iy=0; iy<=L; iy++) l_polys[k_et][0][iy]=G->mult_table[alpha*G->n + l_polys[k_et][0][iy]];
           }
 
         }
       }
+      // for(int cpt=0; cpt<=L && m!=0; cpt++) {
+      //   print_poly(l_polys[cpt],c,L);
+      // }
     }
   }
 
@@ -195,6 +190,7 @@ u_int8_t** interpolate(galois* G, u_int8_t* MM, int height, int width, int K) {
     if(k!=k_min) free_poly(l_polys[k], c);
   }
   u_int8_t** res = l_polys[k_min];
+  printf("k_min=%d\n",k_min);
   free(l_polys);
 
   return res;
