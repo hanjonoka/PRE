@@ -105,13 +105,13 @@ u_int8_t** interpolate(galois* G, u_int8_t* MM, int height, int width, int K) {
   int omega = compute_omega(MM, height, width, K);
   int L = omega/(K-1);
   int c = cost(MM, height, width);
-  printf("omega=%d, L=%d, c=%d\n",omega,L,c);
+  printf("omega=%d, L=%d, c=%d, k=%d\n",omega,L,c,K);
 
   u_int8_t* discrepancy = calloc(L,sizeof(u_int8_t));
   u_int8_t*** l_polys = init_polys(c, L);
-  for(int k=0; k<=L; k++) {
-    print_poly(l_polys[k],c,L);
-  }
+  // for(int k=0; k<=L; k++) {
+  //   print_poly(l_polys[k],c,L);
+  // }
 
   u_int8_t* V = get_lambda(G,1);
 

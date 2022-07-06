@@ -3,6 +3,7 @@
 //multiplicity
 u_int8_t* generate_multiplicity(galois* G, u_int8_t* received, int k);
 int cost(u_int8_t* MM, int height, int width);
+int score(u_int8_t* word, int l, u_int8_t* MM, int height, int width);
 
 //interpolate
 int compute_omega(u_int8_t* M, int height, int width, int k);

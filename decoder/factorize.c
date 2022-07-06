@@ -23,7 +23,7 @@ u_int8_t Q_of_0_Fq(galois* G, u_int8_t** Q, int degx, int degy, u_int8_t Y) {
     u_int8_t r = G->mult_table[Q[0][j]*G->n + tY];
     res = G->add_table[r*G->n + res];
   }
-  printf("Y=%d,res=%d;",Y,res);
+  // printf("Y=%d,res=%d;",Y,res);
   return res;
 }
 
@@ -31,7 +31,7 @@ u_int8_t Q_of_0_Fq(galois* G, u_int8_t** Q, int degx, int degy, u_int8_t Y) {
 u_int8_t* find_y_roots(galois* G, u_int8_t** Q, int degx, int degy, int* n_roots) {
   *n_roots = 0;
   u_int8_t* l_roots = calloc(G->n, sizeof(u_int8_t));
-  print_poly_x_0(Q, degx, degy);
+  // print_poly_x_0(Q, degx, degy);
   for(int i=0; i<G->n; i++) {
     if(Q_of_0_Fq(G, Q, degx, degy, i) == 0) {
       l_roots[*n_roots]=i;
@@ -119,8 +119,8 @@ u_int8_t** Factorize(galois* G, u_int8_t** Q, int degx, int degy, int d, int k, 
   //calcul des racines de Q(0,y)
   int n_roots;
   u_int8_t* l_roots = find_y_roots(G, Q, degx, degy, &n_roots);
-  printf("d=%d,n_roots=%d\n",d,n_roots);
-  print_word(l_roots, n_roots);
+  // printf("d=%d,n_roots=%d\n",d,n_roots);
+  // print_word(l_roots, n_roots);
 
   if(d>=k-1) { //derniere itération, pas besoin de récursion.
     u_int8_t** l_f = calloc(n_roots,sizeof(u_int8_t*));

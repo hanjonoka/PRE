@@ -24,6 +24,14 @@ int cost(u_int8_t* MM, int height, int width) {
   return c;
 }
 
+int score(u_int8_t* word, int l, u_int8_t* MM, int height, int width) {
+  int score=0;
+  for(int i=0; i<l; i++) {
+    score+=MM[i*width + word[i]];
+  }
+  return score;
+}
+
 int nb_monome(int a, int b, int omega) { //nb de monome de wdeg(a,b) au plus omega
   int i=1;
   int j=0;
@@ -55,7 +63,7 @@ u_int8_t* generate_multiplicity(galois* G, u_int8_t* received, int k) {
   double* PI = generate_reliabitity_matrix(G, received); print_reliability_matrix(PI, G->n-1, G->n);
   u_int8_t* MM = calloc(G->n*G->n, sizeof(u_int8_t));
 
-  while(compute_omega(MM, G->n-1, G->n, k) < 20) { //permet de s'arreter quand le cout devient trop important.
+  while(compute_omega(MM, G->n-1, G->n, k) < 3) { //permet de s'arreter quand le cout devient trop important.
 
     int i_max = 0;
     int j_max = 0;
