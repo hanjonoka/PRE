@@ -1,7 +1,9 @@
 #include "../corps_gallois/gallois.h"
 
 //multiplicity
-u_int8_t* generate_multiplicity(galois* G, u_int8_t* received, int k);
+u_int8_t* generate_multiplicity_greedy(galois* G, u_int8_t* received, int k);
+u_int8_t* generate_multiplicity_proportional(galois* G, double* PI, int max_mult, int k);
+double* generate_reliabitity_matrix_hard(galois* G, u_int8_t* received);
 int cost(u_int8_t* MM, int height, int width);
 int score(u_int8_t* word, int l, u_int8_t* MM, int height, int width);
 
@@ -22,3 +24,4 @@ void print_reliability_matrix(double* M, int height, int width);
 void print_word(u_int8_t* w, int l);
 void print_poly(u_int8_t** Q, int degx, int degy);
 void print_poly_x_0(u_int8_t** Q, int degx, int degy);
+void print_progressbar(int progress, int total);

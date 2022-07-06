@@ -175,8 +175,10 @@ u_int8_t** interpolate(galois* G, u_int8_t* MM, int height, int width, int K) {
       // for(int cpt=0; cpt<=L && m!=0; cpt++) {
       //   print_poly(l_polys[cpt],c,L);
       // }
+      print_progressbar(i*width + j, height*width-1);
     }
   }
+  printf("\n");
 
   //selection Q
   int k_min=0;
