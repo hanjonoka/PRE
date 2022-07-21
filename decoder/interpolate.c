@@ -30,6 +30,8 @@ void free_poly(u_int8_t** Q, int degx) {
 
 int weighted_degree(u_int8_t** Q, int degx, int degy, int k) {
   int wd_max = 0;
+  int i_max = 0;
+  int j_max = 0;
   for(int i=0; i<=degx; i++) {
     for(int j=0; j<=degy; j++) {
       if(Q[i][j]!=0) {
@@ -38,6 +40,26 @@ int weighted_degree(u_int8_t** Q, int degx, int degy, int k) {
       }
     }
   }
+  return wd_max;
+}
+
+int weighted_degree_debug(u_int8_t** Q, int degx, int degy, int k) {
+  int wd_max = 0;
+  int i_max = 0;
+  int j_max = 0;
+  for(int i=0; i<=degx; i++) {
+    for(int j=0; j<=degy; j++) {
+      if(Q[i][j]!=0) {
+        int wd=1*i + (k-1)*j;
+        if(wd>wd_max) {
+          wd_max=wd;
+          i_max=i;
+          j_max=j;
+        }
+      }
+    }
+  }
+  printf("i_max=%d,jmax=%d\n",i_max,j_max);
   return wd_max;
 }
 
@@ -105,7 +127,7 @@ u_int8_t** interpolate(galois* G, u_int8_t* MM, int height, int width, int K) {
   int omega = compute_omega(MM, height, width, K);
   int L = omega/(K-1);
   int c = cost(MM, height, width);
-  printf("omega=%d, L=%d, c=%d, k=%d\n",omega,L,c,K);
+  // printf("omega=%d, L=%d, c=%d, k=%d\n",omega,L,c,K);
 
   u_int8_t* discrepancy = calloc(L,sizeof(u_int8_t));
   u_int8_t*** l_polys = init_polys(c, L);
@@ -143,6 +165,9 @@ u_int8_t** interpolate(galois* G, u_int8_t* MM, int height, int width, int K) {
                 k_et=k;
               }
             }
+            // print_progressbar(i*width + j - 1, height*width-1);
+            // printf(" %d/%d",u,m);
+            // k+1>=10 ? printf(" %d/%d",k+1,L+1) : printf("  %d/%d",k+1,L+1);
           }
           // printf("\tk_et = %d\n",k_et);
 
@@ -175,15 +200,16 @@ u_int8_t** interpolate(galois* G, u_int8_t* MM, int height, int width, int K) {
       // for(int cpt=0; cpt<=L && m!=0; cpt++) {
       //   print_poly(l_polys[cpt],c,L);
       // }
-      print_progressbar(i*width + j, height*width-1);
+      // print_progressbar(i*width + j, height*width-1);
     }
   }
-  printf("\n");
+  // printf("\n");
 
   //selection Q
   int k_min=0;
   for(int k=0; k<=L; k++) {
     // print_poly_loc(l_polys[k],c,L);
+    // printf("k=%d, omega=%d\n", k, weighted_degree_debug(l_polys[k],c,L,K));
     if(greater_than(l_polys[k_min], l_polys[k], c, L, K)) k_min=k;
   }
 
@@ -192,7 +218,7 @@ u_int8_t** interpolate(galois* G, u_int8_t* MM, int height, int width, int K) {
     if(k!=k_min) free_poly(l_polys[k], c);
   }
   u_int8_t** res = l_polys[k_min];
-  printf("k_min=%d\n",k_min);
+  // printf("k_min=%d\n",k_min);
   free(l_polys);
 
   return res;

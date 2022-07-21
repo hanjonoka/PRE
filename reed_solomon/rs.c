@@ -25,6 +25,7 @@ void print_poly(u_int8_t* g, int deg){
   printf("\n");
 }
 
+
 void evaluate_rs_old(u_int8_t** msg, u_int8_t* g, galois* G, u_int8_t** encoded) {
   u_int8_t* c_msg = (u_int8_t*)calloc(7,sizeof(u_int8_t));
   u_int8_t* r = (u_int8_t*)calloc(7,sizeof(u_int8_t));

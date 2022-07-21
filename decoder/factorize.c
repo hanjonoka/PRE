@@ -140,6 +140,7 @@ u_int8_t** Factorize(galois* G, u_int8_t** Q, int degx, int degy, int d, int k, 
     //calcul de <<Q[x][xy+f0]>>
     int degx_next, degy_next;
     u_int8_t** Q_next = Normalize_and_cov(G, Q, degx, degy, l_roots[i], &degx_next, &degy_next);
+    // print_poly(Q_next,degx_next,degy_next);
 
     //calcul liste polynomes commençant par l_roots[i]
     int n_p;
@@ -163,4 +164,17 @@ u_int8_t** Factorize(galois* G, u_int8_t** Q, int degx, int degy, int d, int k, 
   free(l_roots);
 
   return l_f;
+}
+
+int select_word(u_int8_t** l_words, int len, galois* G, u_int8_t* M) {
+  int score_max = score(l_words[0],G->n-1, M, G->n-1, G->n);
+  int i_max = 0;
+  for(int i=1; i<len; i++) {
+    int s = score(l_words[i],G->n-1, M, G->n-1, G->n);
+    if(score_max<s) {
+      score_max=s;
+      i_max=i;
+    }
+  }
+  return i_max;
 }

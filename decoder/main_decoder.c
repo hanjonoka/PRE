@@ -2,88 +2,6 @@
 #include "string.h"
 #include "../generalized_rs/grs.h"
 
-void print_reliability_matrix(double* M, int height, int width) {
-  printf("PI =\n");
-  for(int i=0; i<height; i++) {
-    for(int j=0; j<width; j++) {
-      printf("%lf ", M[i*width + j]);
-    }
-    printf("\n");
-  }
-}
-
-void print_multiplicity_matrix(u_int8_t* M, int height, int width) {
-  printf("M =\n");
-  for(int i=0; i<height; i++) {
-    for(int j=0; j<width; j++) {
-      printf("%d ", M[i*width + j]);
-    }
-    printf("\n");
-  }
-}
-
-void print_poly(u_int8_t** Q, int degx, int degy) {
-  printf("Q = ");
-  for(int i=0;i<=degx;i++) {
-    for(int j=0; j<=degy; j++) {
-      if(Q[i][j]!=0) printf(" + %d*x^%d*y^%d", Q[i][j],i,j);
-    }
-  }
-  printf("\n");
-}
-
-void print_f(u_int8_t* f, int deg) {
-  printf("f(x) = %d",f[0]);
-  for(int i=1; i<=deg; i++) {
-    printf(" + %d*x^%d", f[i],i);
-  }
-  printf("\n");
-}
-
-void print_list_f(u_int8_t** l_f, int l, int deg) {
-  printf("list of f =\n");
-  for(int i=0; i<l; i++) {
-    printf("\t");
-    print_f(l_f[i],deg);
-  }
-}
-
-void print_poly_x_0(u_int8_t** Q, int degx, int degy) {
-  printf("Q = ");
-  for(int j=0; j<degy; j++) {
-    if(Q[0][j]!=0) printf(" + %d*y^%d", Q[0][j],j);
-  }
-  printf("\n");
-}
-
-void print_word(u_int8_t* w, int l) {
-  printf("w = [%d",w[0]);
-  for(int i=1; i<l; i++) {
-    printf(",%d",w[i]);
-  }
-  printf("]\n");
-}
-
-void print_list_word(u_int8_t** lw, int n, int l) {
-  printf("List of words = \n");
-  for(int i=0; i<n; i++) {
-    printf("\t");
-    print_word(lw[i],l);
-  }
-}
-
-void print_progressbar(int progress, int total) {
-  printf("\rProgress : ");
-  for(int i=0; i<progress; i++) {
-    printf("#");
-  }
-  for(int i=0; i<total-progress; i++) {
-    printf("-");
-  }
-  printf(" %d%%",progress*100/total);
-  fflush(stdout);
-}
-
 //renvoie un corps de galois de polynôme générateur de degré d.
 galois* init_galois(int d) {
   if(d==1) {
@@ -111,7 +29,6 @@ galois* init_galois(int d) {
     return NULL;
   }
 }
-
 
 int main(int argc, char* argv[]) {
   galois* G;
@@ -165,9 +82,23 @@ int main(int argc, char* argv[]) {
           return 1;
         }
         PI = generate_reliabitity_matrix_hard(G, msg);
+        printf("Mot à décoder : ");
+        print_word(msg,G->n-1);
       }else if(!strcmp(argv[5],"soft")) {
-        printf("not yet implemented.\n");
-        return 1;
+        double* rec = (double*) calloc(G->n-1,sizeof(double));
+        char* ptr = strtok(argv[4],",");
+        int i=0;
+        while(ptr!=NULL) {
+          rec[i]=atof(ptr);
+          ptr = strtok(NULL,",");
+          i++;
+        }
+        print_fword(rec,G->n-1);
+        if(i!=G->n-1) {
+          printf("Le mot doit comporter n caratères\n");
+          return 1;
+        }
+        PI = generate_reliabitity_matrix_soft(G, rec, 0.2);
       }else{
         printf("%s : Soft ou Hard ??\n",argv[5]);
         return 1;
@@ -194,6 +125,9 @@ int main(int argc, char* argv[]) {
       evaluate_grs_pol(f,k,V,lambda,G,msg);
       PI = generate_reliabitity_matrix_hard(G, msg);
 
+      printf("Mot à décoder : ");
+      print_word(msg,G->n-1);
+
       i_opt=5;
     }
 
@@ -206,8 +140,6 @@ int main(int argc, char* argv[]) {
     printf("Impossible d'interpréter les arguments. --help pour l'aide\n");
   }
 
-  printf("Mot à décoder : ");
-  print_word(msg,G->n-1);
 
   printf("\nMultiplicity Assignement\n");
   print_reliability_matrix(PI, G->n-1, G->n);
@@ -222,6 +154,7 @@ int main(int argc, char* argv[]) {
   int c = cost(M, G->n-1, G->n);
   printf("Result :\n");
   print_poly(Q,c,L);
+  printf("omega = %d\n", weighted_degree(Q,c,L,k));
 
   printf("\nFactorization\n");
   int n_w;
@@ -246,17 +179,18 @@ int main(int argc, char* argv[]) {
 
 
   printf("\nSelection du meilleur mot\n");
-  int score_max = score(l_sent[0],G->n-1, M, G->n-1, G->n);
-  int i_max = 0;
-  for(int i=1; i<n_w; i++) {
-    int s = score(l_sent[i],G->n-1, M, G->n-1, G->n);
-    if(score_max<s) {
-      score_max=s;
-      i_max=i;
-    }
-  }
-  print_word(l_sent[i_max],G->n-1);
-  printf("score = %d\n",score_max);
-  print_f(l_w[i_max], k-1);
+  // int score_max = score(l_sent[0],G->n-1, M, G->n-1, G->n);
+  // int i_max = 0;
+  // for(int i=1; i<n_w; i++) {
+  //   int s = score(l_sent[i],G->n-1, M, G->n-1, G->n);
+  //   if(score_max<s) {
+  //     score_max=s;
+  //     i_max=i;
+  //   }
+  // }
+  int i_decoded = select_word(l_sent, n_w, G, M);
+  print_word(l_sent[i_decoded],G->n-1);
+  printf("score = %d\n",score(l_sent[i_decoded],G->n-1, M, G->n-1, G->n));
+  print_f(l_w[i_decoded], k-1);
   return 0;
 }

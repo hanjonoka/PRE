@@ -11,6 +11,9 @@ GRS_C = generalized_rs/grs.c
 compute_1: grs rs $(GRS_H) $(RS_H) compute_1.c
 	$(CXX) $(OPT) $(GAL_HEAD) $(GRS_H) $(RS_H) rs.o grs.o gallois.o compute_1.c -o compute_1.exe
 
+compute_4: grs rs $(GRS_H) $(RS_H) compute_4.c
+	$(CXX) $(OPT) $(GAL_HEAD) $(GRS_H) $(RS_H) rs.o grs.o gallois.o compute_4.c -o compute_4.exe
+
 compare16: grs rs $(GRS_H) $(RS_H) compare16.c
 	$(CXX) $(OPT) $(GAL_HEAD) $(GRS_H) $(RS_H) rs.o grs.o gallois.o compare16.c -o compare16.exe -lm
 

@@ -1,6 +1,8 @@
 #include "decoder.h"
 #include "math.h"
 
+#define pi 3.14159265358979323846
+
 //matrice de taille n*q, q=G->n, n=q-1
 double* generate_reliabitity_matrix_hard(galois* G, u_int8_t* received) {
   double p_error = 0.3;
@@ -10,6 +12,23 @@ double* generate_reliabitity_matrix_hard(galois* G, u_int8_t* received) {
     for(int j=0; j<G->n; j++) {
       u_int8_t d = G->distances[received[i]*G->n + j];
       matrix[i*G->n + j] = pow(p_error,d) * pow(1.0 - p_error,G->deg_P - d);
+    }
+  }
+
+  return matrix;
+}
+
+double* generate_reliabitity_matrix_soft(galois* G, double* received, double sigma) {
+  double* matrix = calloc(G->n*G->n, sizeof(double));
+  for(int i=0; i<G->n-1; i++) {
+    double mu = received[i];
+    double s=0;
+    for(int j=0; j<G->n; j++) {
+      matrix[i*G->n + j] = 1/(sigma*sqrt(2*pi))*exp(-pow(j-mu,2)/(2*pow(sigma,2)));
+      s+=matrix[i*G->n + j];
+    }
+    for(int j=0; j<G->n; j++) {
+      matrix[i*G->n + j] = matrix[i*G->n + j]/s;
     }
   }
 
@@ -34,12 +53,12 @@ int score(u_int8_t* word, int l, u_int8_t* MM, int height, int width) {
 
 int nb_monome(int a, int b, int omega) { //nb de monome de wdeg(a,b) au plus omega
   if(b==0 ^ a==0) return omega;
-  int i=1;
+  int i=0;
   int j=0;
   int nb=0;
 
-  while(i*a < omega) {
-    while(j*b < omega) {
+  while(i*a <= omega) {
+    while(i*a + j*b <= omega) {
       nb++;
       j++;
     }

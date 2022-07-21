@@ -16,8 +16,9 @@ int main() {
   u_int8_t P32[6] = {1,1,1,0,1,1};
   u_int8_t P16[5] =  {1,1,0,0,1};
   u_int8_t P8[4] = {1,0,1,1};
-  galois* G = generate_galois(P32, 5);
-  int msg_len = 7;
+  u_int8_t P4[3] = {1,1,1};
+  galois* G = generate_galois(P4, 2);
+  int msg_len = 1;
 
   //init RS
   u_int8_t** g_tab = (u_int8_t**) calloc(G->n-1,sizeof(u_int8_t*));
