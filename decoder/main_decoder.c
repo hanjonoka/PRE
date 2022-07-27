@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
   printf("\nInterpolation\n");
   u_int8_t** Q = interpolate(G, M, G->n-1, G->n, k);
   int omega = compute_omega(M, G->n-1, G->n, k);
-  int L = omega/(k-1);
+  int L = k>1 ? omega/(k-1): 2*omega;
   int c = cost(M, G->n-1, G->n);
   printf("Result :\n");
   print_poly(Q,c,L);

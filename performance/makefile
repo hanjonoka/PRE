@@ -1,4 +1,4 @@
-CXX = gcc
+CXX = gcc -fopenmp
 OPT = -O3
 
 GAL_SRC = ../corps_gallois/gallois.c

@@ -87,7 +87,7 @@ void print_progressbar(double progress, int total) {
   printf("\rProgress : ");
   int i;
   if(progress>total) progress=total;
-  for(i=0; i<progress*20/total; i++) {
+  for(i=0; i<progress*20./total; i++) {
     printf("#");
   }
   for(; i<20; i++) {
@@ -103,16 +103,16 @@ void print_progressbar(double progress, int total) {
 
 //msg_len>=2
 u_int8_t* decode_soft(double* received, galois* G, int msg_len, int max_mult, double sigma) {
-  print_fword(received, G->n-1);
+  // print_fword(received, G->n-1);
   u_int8_t* V = get_lambda(G,1);
   u_int8_t* lambda = get_lambda(G,0);
   double* PI = generate_reliabitity_matrix_soft(G, received, sigma);
-  printf("P"); fflush(stdout);
+  // printf("P"); fflush(stdout);
   u_int8_t* M = generate_multiplicity_proportional(G, PI, max_mult, msg_len);
-  printf("M"); fflush(stdout);
+  // printf("M"); fflush(stdout);
   // print_multiplicity_matrix(M, G->n-1, G->n);
   u_int8_t** Q = interpolate(G, M, G->n-1, G->n, msg_len);
-  printf("I"); fflush(stdout);
+  // printf("I"); fflush(stdout);
   //factorization
   int omega = compute_omega(M, G->n-1, G->n, msg_len);
   int L = omega/(msg_len-1);
@@ -121,7 +121,7 @@ u_int8_t* decode_soft(double* received, galois* G, int msg_len, int max_mult, do
   int degx_norm, degy_norm;
   u_int8_t** Q_norm = normalize(G, Q, c, L, &degx_norm, &degy_norm);
   u_int8_t** l_w = Factorize(G, Q_norm, degx_norm, degy_norm, 0, msg_len, &n_w);
-  printf("F(%d)",n_w); fflush(stdout);
+  // printf("F(%d)",n_w); fflush(stdout);
   if(n_w==0) {
     //décodage non réussi
     free_poly(Q_norm, degx_norm);
@@ -140,7 +140,7 @@ u_int8_t* decode_soft(double* received, galois* G, int msg_len, int max_mult, do
   }
   int i_decoded = select_word(l_sent, n_w, G, M);
   u_int8_t* decoded = l_w[i_decoded];
-  printf("S"); fflush(stdout);
+  // printf("S"); fflush(stdout);
   // printf("decoded : ");print_word(l_sent[i_decoded], G->n-1);
   // printf("decoded : ");print_word(decoded, msg_len);
   
@@ -156,7 +156,7 @@ u_int8_t* decode_soft(double* received, galois* G, int msg_len, int max_mult, do
   free(PI);
   free(lambda);
   free(V);
-  printf("done\n");
+  // printf("done\n");
 
   return decoded;
 }

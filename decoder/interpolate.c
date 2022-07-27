@@ -125,9 +125,10 @@ u_int8_t D(galois* G, u_int8_t** Q, int degx, int degy, int u, int v, u_int8_t a
 u_int8_t** interpolate(galois* G, u_int8_t* MM, int height, int width, int K) {
   //init
   int omega = compute_omega(MM, height, width, K);
-  int L = omega/(K-1);
+  int L;
+  L = K>1 ? omega/(K-1) : 2*omega;
   int c = cost(MM, height, width);
-  // printf("omega=%d, L=%d, c=%d, k=%d\n",omega,L,c,K);
+  printf("omega=%d, L=%d, c=%d, k=%d\n",omega,L,c,K);
 
   u_int8_t* discrepancy = calloc(L,sizeof(u_int8_t));
   u_int8_t*** l_polys = init_polys(c, L);
@@ -165,9 +166,9 @@ u_int8_t** interpolate(galois* G, u_int8_t* MM, int height, int width, int K) {
                 k_et=k;
               }
             }
-            // print_progressbar(i*width + j - 1, height*width-1);
-            // printf(" %d/%d",u,m);
-            // k+1>=10 ? printf(" %d/%d",k+1,L+1) : printf("  %d/%d",k+1,L+1);
+            print_progressbar(i*width + j - 1, height*width-1);
+            printf(" %d/%d",u,m);
+            k+1>=10 ? printf(" %d/%d",k+1,L+1) : printf("  %d/%d",k+1,L+1);
           }
           // printf("\tk_et = %d\n",k_et);
 
@@ -200,10 +201,10 @@ u_int8_t** interpolate(galois* G, u_int8_t* MM, int height, int width, int K) {
       // for(int cpt=0; cpt<=L && m!=0; cpt++) {
       //   print_poly(l_polys[cpt],c,L);
       // }
-      // print_progressbar(i*width + j, height*width-1);
+      print_progressbar(i*width + j, height*width-1);
     }
   }
-  // printf("\n");
+  printf("\n");
 
   //selection Q
   int k_min=0;
@@ -212,7 +213,7 @@ u_int8_t** interpolate(galois* G, u_int8_t* MM, int height, int width, int K) {
     // printf("k=%d, omega=%d\n", k, weighted_degree_debug(l_polys[k],c,L,K));
     if(greater_than(l_polys[k_min], l_polys[k], c, L, K)) k_min=k;
   }
-
+  printf("selected\n");
   // print_poly_loc(l_polys[k_min],c,L);
   for(int k=0; k<=L; k++) {
     if(k!=k_min) free_poly(l_polys[k], c);
